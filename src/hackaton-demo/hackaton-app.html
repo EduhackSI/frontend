@@ -1,0 +1,469 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="../../bower_components/app-layout/app-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/font-roboto/roboto.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../../bower_components/chart-elements/chart-radar.html">
+
+
+<link rel="import" href="circle-node.html">
+
+<dom-module id="hackaton-app">
+  <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        font-family: 'Roboto', 'Noto', sans-serif;
+      }
+      app-header {
+        background-color: #4285f4;
+        color: #fff;
+        z-index: 10;
+      }
+
+      app-header paper-icon-button {
+        --paper-icon-button-ink-color: white;
+      }
+
+      .circleContainer{
+        width: 500px;
+        height: 500px;
+        position: relative;
+        margin: auto;
+        z-index: 2;
+      }
+
+      .profileCircle{
+        position: absolute;
+        top: 150px;
+        left: 150px;
+      }
+
+      .courseCircle{
+        position: absolute;
+        margin: 0px;
+        -webkit-transition: all 0.5s ease-in-out;
+        -moz-transition: all 0.5s ease-in-out;
+        -o-transition: all 0.5s ease-in-out;
+        transition: all 0.5s ease-in-out;
+      }
+
+      .content{
+        overflow: hidden;
+      }
+
+      paper-material{
+        background-color: white;
+      }
+
+      .content{
+        padding: 20px;
+      }
+
+      h3 {
+        margin-top: 0px;
+      }
+
+    </style>
+    <iron-ajax
+      auto
+      url="rekenen.json"
+      params='{"alt":"json", "q":"chrome"}'
+      handle-as="json"
+      last-response="{{json}}"
+      on-response="_handleResponse"
+      debounce-duration="300">
+    </iron-ajax>
+
+    <app-drawer-layout>
+
+      <app-drawer>
+        <app-toolbar>Hackaton demo</app-toolbar>
+        <paper-menu selected="{{menuSelected}}" on-iron-select="_menuChanged">
+          <paper-item>Assignments</paper-item>
+          <paper-item>Overview</paper-item>
+          <paper-item>Leaderboard</paper-item>
+        </paper-menu>
+
+      </app-drawer>
+
+      <app-header-layout>
+
+        <app-header id="toolbar" fixed condenses effects="waterfall">
+          <app-toolbar>
+            <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+            <div spacer title>{{selectedPage}}</div>
+            <paper-icon-button icon="account-circle"></paper-icon-button>
+          </app-toolbar>
+        </app-header>
+
+      <iron-pages id="pages" selected="{{menuSelected}}">
+        <div class="vertical layout center">
+          <paper-material class="content vertical layout center">
+            <div class="circleContainer">
+              <iron-image class="profileCircle" style="height:200px; width: 200px;" src="Kinderen/2.png" sizing="contain"></iron-image>
+
+              <circle-node class="courseCircle" stars="112" color="#9B59B6" label="Kunst"></circle-node>
+              <circle-node class="courseCircle" stars="67" color="#E67E22" label="Nederlands"></circle-node>
+              <circle-node class="courseCircle" stars="90" label="Rekenen" id="rekenen" on-click="_rekenenClicked"></circle-node>
+              <circle-node class="courseCircle" stars="41" color="blue" label="Engels"></circle-node>
+              <circle-node class="courseCircle" stars="69" color="#8E44AD" label="Geschiedenis"></circle-node>
+              <circle-node class="courseCircle" stars="88" color="#16A085" label="Maatschappij"></circle-node>
+              <circle-node class="courseCircle" stars="59" color="#2ECC71" label="Aardrijkskunde"></circle-node>
+              <circle-node class="courseCircle" stars="72" color="#3498DB" label="Informatica"></circle-node>
+            </div>
+
+            <div class="horizontal layout">
+              <template is="dom-repeat" items="{{rekenen}}">
+                <circle-node id="{{index}}" class="subs" stars="21" label="{{item.label}}" style="margin: 10px;" on-click="_subClicked"></circle-node>
+              </template>
+            </div>
+
+            <div class="horizontal layout">
+              <template is="dom-repeat" items="{{selectedSub}}">
+                <circle-node id="{{index}}" class="subsubs" stars="8" label="{{item.label}}" style="margin: 10px;" on-click="_subSubClicked"></circle-node>
+              </template>
+            </div>
+          </paper-material>
+        </div>
+
+        <div class="vertical layout" style="padding: 40px;">
+          <div class="horizontal layout">
+            <paper-material class=" content flex" style="margin: 10px;">
+              <h3>Aanbevolen opdrachten</h3>
+
+              <paper-material class="horizontal layout center">
+                <div class="horizontal layout center" style="height: 40px; width: 100px; background-color: #E67E22; padding-left: 10px;">
+                  <p style="color: white;">Nederlands</p>
+                </div>
+                <div class="horizontal layout center" style="height: 40px; width: 100px; background-color: #cf6d17; padding-left: 10px;">
+                  <p style="color: white;">Grammatica</p>
+                </div>
+                <div class="horizontal layout center" style="height: 40px; width: 100px; background-color: #a15412; padding-left: 10px;">
+                  <p style="color: white;">D, t of dt</p>
+                </div>
+                <p style="margin: 0px 0px 0px 10px;">Opdracht 1</p>
+                <div class="flex"></div>
+                <paper-icon-button icon="arrow-forward"></paper-icon-button>
+              </paper-material>
+
+              <paper-material class="horizontal layout center">
+                <div class="horizontal layout center" style="height: 40px; width: 100px; background-color: #417505; padding-left: 10px;">
+                  <p style="color: white;">Rekenen</p>
+                </div>
+                <div class="horizontal layout center" style="height: 40px; width: 100px; background-color: #366204; padding-left: 10px;">
+                  <p style="color: white;">Getallen</p>
+                </div>
+                <div class="horizontal layout center" style="height: 40px; width: 100px; background-color: #294903; padding-left: 10px;">
+                  <p style="color: white;">Breuken</p>
+                </div>
+                <p style="margin: 0px 0px 0px 10px;">Opdracht 3</p>
+                <div class="flex"></div>
+                <paper-icon-button icon="arrow-forward"></paper-icon-button>
+              </paper-material>
+
+              <paper-material class="horizontal layout center">
+                <div class="horizontal layout center" style="height: 40px; width: 100px; background-color: #8E44AD; padding-left: 10px;">
+                  <p style="color: white;">Engels</p>
+                </div>
+                <div class="horizontal layout center" style="height: 40px; width: 100px; background-color: #783993; padding-left: 10px;">
+                  <p style="color: white;">Leesvaardigheden</p>
+                </div>
+                <div class="horizontal layout center" style="height: 40px; width: 100px; background-color: #5a2b6e; padding-left: 10px;">
+                  <p style="color: white;">Boeken</p>
+                </div>
+                <p style="margin: 0px 0px 0px 10px;">The great gatsby</p>
+                <div class="flex"></div>
+                <paper-icon-button icon="arrow-forward"></paper-icon-button>
+              </paper-material>
+            </paper-material>
+
+            <paper-material class=" content flex" style="margin: 10px;">
+              <h3>Vind anderen</h3>
+              <div class="horizontal layout">
+                <div class="vertical layout center">
+                  <iron-image style="height:100px; width: 100px; margin: 10px;" src="Kinderen/3.png" sizing="contain"></iron-image>
+                  <p style="margin-top: 0px;">Meetkunde</p>
+                </div>
+                <div class="vertical layout center">
+                  <iron-image style="height:100px; width: 100px; margin: 10px;" src="Kinderen/4.png" sizing="contain"></iron-image>
+                  <p style="margin-top: 0px;">Oudheid</p>
+                </div>
+                <div class="vertical layout center">
+                  <iron-image style="height:100px; width: 100px; margin: 10px;" src="Kinderen/5.png" sizing="contain"></iron-image>
+                  <p style="margin-top: 0px;">Meetkunde</p>
+                </div>
+                <div class="vertical layout center">
+                  <iron-image style="height:100px; width: 100px; margin: 10px;" src="Kinderen/6.png" sizing="contain"></iron-image>
+                  <p style="margin-top: 0px;">Meetkunde</p>
+                </div>
+              </div>
+            </paper-material>
+          </div>
+
+          <paper-material class="vertical layout content" style="display: block; margin: 10px;">
+            <h3>Overview</h3>
+
+            <chart-radar style="width: 400px; height: 400px;" data="[[data]]"></chart-radar>
+
+          </paper-material>
+
+        </div>
+
+        <div>
+          <p>3</p>
+        </div>
+
+        <div class="vertical layout content">
+          <div class="horizontal layout">
+            <paper-material style="display: block; margin: 10px;" class="flex">
+              <paper-material class="content" style="background-color: #417505; color: white;">
+                <div class="horizontal layout center">
+                  <h3>Niveau 1</h3>
+                  <div class="flex"></div>
+                  <paper-icon-button icon="star" style="color: #F1C40F;"></paper-icon-button>
+                </div>
+             </paper-material>
+             <div class="vertical layout" style="height: 300px; overflow-y: auto;">
+                <template is="dom-repeat" items="{{selectedSubSub}}">
+                  <paper-material class="horizontal layout center" style="padding: 10px;">
+                    <span>{{item.label}}</span>
+                    <div class="flex"></div>
+                    <paper-icon-button icon="star" style="color: #F1C40F;"></paper-icon-button>
+                  </paper-material>
+                </template>
+             </div>
+            </paper-material>
+
+            <paper-material style="display: block; margin: 10px;" class="flex">
+              <paper-material class="content" style="background-color: #417505; color: white;">
+                <div class="horizontal layout center">
+                  <h3>Niveau 2</h3>
+                  <div class="flex"></div>
+                  <paper-icon-button icon="star" style="color: #eee"></paper-icon-button>
+                </div>
+             </paper-material>
+             <div class="vertical layout" style="height: 300px; overflow-y: auto;">
+                <template is="dom-repeat" items="{{selectedSubSub}}">
+                  <paper-material class="horizontal layout center" style="padding: 10px;">
+                    <span>{{item.label}}</span>
+                    <div class="flex"></div>
+                    <paper-icon-button icon="arrow-forward" style="color: black"></paper-icon-button>
+                  </paper-material>
+                </template>
+             </div>
+            </paper-material>
+          </div>
+
+          <div class="horizontal layout">
+             <paper-material style="display: block; margin: 10px;" class="flex">
+              <paper-material class="content" style="background-color: #417505; color: white;">
+                <div class="horizontal layout center">
+                  <h3>Niveau 3</h3>
+                  <div class="flex"></div>
+                  <paper-icon-button icon="star" style="color: #eee"></paper-icon-button>
+                </div>
+             </paper-material>
+             <div class="horizontal layout center" style="height: 300px; overflow-y: auto;">
+                <paper-icon-button icon="lock" style="margin: auto; color: #417505; height: 64px; width: 64px;"></paper-icon-button>
+             </div>
+            </paper-material>
+
+            <paper-material style="display: block; margin: 10px;" class="flex">
+              <paper-material class="content" style="background-color: #417505; color: white;">
+                <div class="horizontal layout center">
+                  <h3>Niveau 4</h3>
+                  <div class="flex"></div>
+                  <paper-icon-button icon="star" style="color: #eee"></paper-icon-button>
+                </div>
+             </paper-material>
+             <div class="horizontal layout center" style="height: 300px; overflow-y: auto;">
+                <paper-icon-button icon="lock" style="margin: auto; color: #417505; height: 64px; width: 64px;"></paper-icon-button>
+             </div>
+            </paper-material>
+          </div>
+        </div>
+
+      </iron-pages>
+      </app-header-layout>
+
+      <!-- <div style="position: absolute; top: 0px; left: 0px; height: 100vh; width: 20px; background-color: green;">
+      </div> -->
+
+
+    </app-drawer-layout>
+    
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'hackaton-app',
+
+      properties: {
+        rekenen: {
+          type: Array,
+          value: []
+        },
+        selectedSub:{
+          type: Array,
+          value: []
+        },
+        selectedSubSub:{
+          type: Array,
+          value: []
+        },
+        counter:{
+          type: Number,
+          value: 0
+        },
+        first:{
+          type: Boolean,
+          value: true
+        },
+        selectedId:{
+          type: Number,
+          value: 0
+        },
+        menuSelected:{
+          type: Number,
+          value: 0
+        },
+        selectedPage :{
+          type: String,
+          value: "Assignments"
+        }
+      },
+
+      listeners:{
+        'finished':'_finishedAll',
+      },
+
+      show: function(){
+        var blocks = this.querySelectorAll(".courseCircle");
+        for (var i = 0; i < blocks.length; i++){
+          blocks[i].show(i * 100);
+        }
+      },
+
+      _handleResponse: function(){        
+        this.rekenen = this.json;
+      },
+
+      _menuChanged: function(){
+        var array = ["Assignments", "Overview", "Leaderboard"];
+        this.$.toolbar.style.backgroundColor = "#4285f4";
+        this.selectedPage = array[this.menuSelected];
+
+         this.data = {
+          labels: ["Aardrijkskunde", "Informatica", "Kunst", "Nederlands", "Rekenen", "Engels", "Geschiedenis", "Maatschappij"],
+          datasets: [
+            {
+              label: "Vorige week",
+              fillColor: "rgba(220,187,151,0.2)",
+              strokeColor: "rgba(220,187,151,1)",
+              pointColor: "rgba(220,187,151,1)",
+              pointStrokeColor: "#fff",
+              pointHighlightFill: "#fff",
+              pointHighlightStroke: "rgba(220,220,220,1)",
+              data: [65, 59, 30, 70, 56, 55, 40, 70]
+            },
+            {
+              label: "Nu",
+              fillColor: "rgba(151,187,205,0.2)",
+              strokeColor: "rgba(151,187,205,1)",
+              pointColor: "rgba(151,187,205,1)",
+              pointStrokeColor: "#fff",
+              pointHighlightFill: "#fff",
+              pointHighlightStroke: "rgba(151,187,205,1)",
+              data: [70, 59, 35, 81, 57, 55, 49, 72]
+            }
+          ]
+        };
+      },
+      
+      ready: function(){
+
+        var circles = document.querySelectorAll(".courseCircle");
+        for(var i=0; i<circles.length;i++){
+          circles[i].style.top = (170*Math.sin(i * Math.PI * 2 / circles.length) + 200) + "px";
+          circles[i].style.left = (170*Math.cos(i * Math.PI * 2 / circles.length) + 200) + "px";
+        }
+      },
+
+      _rekenenClicked: function(sender){
+        document.querySelector("#rekenen").selected = true;
+        var subs = document.querySelectorAll(".subs");
+        for (var i = 0; i < subs.length; i++){
+          subs[i].show(i * 100);
+        }
+
+      },
+
+      _subClicked: function(sender){
+        this.selectedId = sender.target.parentElement.id;
+        this.counter = 0;
+        var subsubs = document.querySelectorAll(".subsubs");
+        for (var i = 0; i < subsubs.length; i++){
+          subsubs[i].hide();
+        }
+
+        var subs = document.querySelectorAll(".subs");
+        for (var i = 0; i < subs.length; i++){
+          subs[i].selected = false;
+        }
+        subs[this.selectedId].selected = true;
+
+        if(this.first){
+          this._animateShow();
+          this.first = false;
+        }
+
+      },
+
+      _subSubClicked: function(sender){
+        console.log(this.selectedSub[sender.target.parentElement.id].children);
+        this.selectedSubSub = this.selectedSub[sender.target.parentElement.id].children;
+        this.$.pages.selected = 3;
+        this.selectedPage = this.selectedSub[sender.target.parentElement.id].label;
+        this.$.toolbar.style.backgroundColor = "#417505";
+      },
+
+
+       _finishedAll: function(){
+        this.counter++;
+        if(this.counter == this.querySelectorAll(".subsubs").length){
+          this._animateShow();
+        }
+      },
+
+      _animateShow: function(){   
+        this.selectedSub = this.rekenen[this.selectedId].children;
+
+        setTimeout(function(){
+          var subsubs = document.querySelectorAll(".subsubs");
+          for (var i = 0; i < subsubs.length; i++){
+            subsubs[i].show(i * 100);
+          }}, 100);
+      }
+
+    });
+  </script>
+</dom-module>

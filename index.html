@@ -1,0 +1,28 @@
+<!doctype html>
+
+<html>
+  <head>
+    <title>Hackaton demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="/src/hackaton-demo/hackaton-app.html">
+    
+    <style>
+      .fullbleed{
+        margin: 0;
+        height: 100vh;
+        background-color: #eee;
+        overflow-y: scroll;
+      }
+    </style>
+  </head>
+  <body class="fullbleed">
+    <hackaton-app></hackaton-app>
+    <script>
+      document.addEventListener('WebComponentsReady', function() {
+        document.querySelector('hackaton-app').show();
+      });
+    </script>
+  </body>
+</html>
